@@ -21,25 +21,26 @@ public class E04_SignHelloWorld extends SignHelloWorld {
     public static final String DEST = "results/chapter2/hello_signed%s.pdf";
 
     public static void main(String[] args) throws GeneralSecurityException, IOException, DocumentException {
-        BouncyCastleProvider provider = new BouncyCastleProvider();
-        Security.addProvider(provider);
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        ks.load(new FileInputStream(KEYSTORE), PASSWORD);
-        String alias = ks.aliases().nextElement();
-        PrivateKey pk = (PrivateKey) ks.getKey(alias, PASSWORD);
-        Certificate[] chain = ks.getCertificateChain(alias);
+//        BouncyCastleProvider provider = new BouncyCastleProvider();
+//        Security.addProvider(provider);
+//        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+//        ks.load(new FileInputStream(KEYSTORE), PASSWORD);
+//        String alias = ks.aliases().nextElement();
+//        PrivateKey pk = (PrivateKey) ks.getKey(alias, PASSWORD);
+//        Certificate[] chain = ks.getCertificateChain(alias);
         SignHelloWorld app = new E04_SignHelloWorld();
-        app.sign(
-                SRC, "Signature1", String.format(DEST, 1), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
-                MakeSignature.CryptoStandard.CMS, "Test 1", "Ghent");
-        app.sign(
-                SRC, "Signature1", String.format(DEST, 2), chain, pk, DigestAlgorithms.SHA512, provider.getName(),
-                MakeSignature.CryptoStandard.CMS, "Test 2", "Ghent");
-        app.sign(
-                SRC, "Signature1", String.format(DEST, 3), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
-                MakeSignature.CryptoStandard.CADES, "Test 3", "Ghent");
-        app.sign(
-                SRC, "Signature1", String.format(DEST, 4), chain, pk, DigestAlgorithms.RIPEMD160,
-                provider.getName(), MakeSignature.CryptoStandard.CADES, "Test 4", "Ghent");
+        app.createPdf(SRC);
+//        app.sign(
+//                SRC, "Signature1", String.format(DEST, 1), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
+//                MakeSignature.CryptoStandard.CMS, "Test 1", "Ghent");
+//        app.sign(
+//                SRC, "Signature1", String.format(DEST, 2), chain, pk, DigestAlgorithms.SHA512, provider.getName(),
+//                MakeSignature.CryptoStandard.CMS, "Test 2", "Ghent");
+//        app.sign(
+//                SRC, "Signature1", String.format(DEST, 3), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
+//                MakeSignature.CryptoStandard.CADES, "Test 3", "Ghent");
+//        app.sign(
+//                SRC, "Signature1", String.format(DEST, 4), chain, pk, DigestAlgorithms.RIPEMD160,
+//                provider.getName(), MakeSignature.CryptoStandard.CADES, "Test 4", "Ghent");
     }
 }

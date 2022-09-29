@@ -1,10 +1,7 @@
 package com.icarus.ds;
 
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfSignatureAppearance;
-import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.*;
 
 import java.io.File;
@@ -15,6 +12,36 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 
 public class SignHelloWorld {
+
+    public void createPdf(String filename) throws IOException, DocumentException{
+        // step 1: Create a Document
+        Document document = new Document();
+        // step 2: Create a PdfWriter
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(filename));
+        // step 3: Open the Document
+        document.open();
+        // step 4: Add content
+        document.add(new Paragraph("Hello World!"));
+        // create a signature form field
+        PdfFormField field = PdfFormField.createSignature(writer);
+        // set the widget properties
+        field.setPage();
+        field.setWidget(new Rectangle(72, 732, 144, 780), PdfAnnotation.HIGHLIGHT_INVERT);
+        field.setFlags(PdfAnnotation.FLAGS_PRINT);
+        // add it as an annotation
+        writer.addAnnotation(field);
+        // maybe you want to define an appearance
+        PdfAppearance tp = PdfAppearance.createAppearance(writer, 72, 48);
+        tp.setColorStroke(BaseColor.BLUE);
+        tp.setColorFill(BaseColor.LIGHT_GRAY);
+        tp.rectangle(0.5f, 0.5f, 71.5f, 47.5f);
+        tp.fillStroke();
+        tp.setColorFill(BaseColor.BLUE);
+        ColumnText.showTextAligned(tp, Element.ALIGN_CENTER, new Phrase("SIGN HERE"), 36, 24, 25);
+        field.setAppearance(PdfAnnotation.APPEARANCE_NORMAL, tp);
+        // step 5: Close the Document
+        document.close();
+    }
 
     public void sign(
             String src, String name, String dest, Certificate[] chain, PrivateKey pk, String digestAlgorithm,
