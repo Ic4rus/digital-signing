@@ -30,16 +30,16 @@ public class E04_SignHelloWorld extends SignHelloWorld {
         Certificate[] chain = ks.getCertificateChain(alias);
         SignHelloWorld app = new E04_SignHelloWorld();
         app.sign(
-                SRC, String.format(DEST, 1), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
+                SRC, "Signature1", String.format(DEST, 1), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
                 MakeSignature.CryptoStandard.CMS, "Test 1", "Ghent");
         app.sign(
-                SRC, String.format(DEST, 2), chain, pk, DigestAlgorithms.SHA512, provider.getName(),
+                SRC, "Signature1", String.format(DEST, 2), chain, pk, DigestAlgorithms.SHA512, provider.getName(),
                 MakeSignature.CryptoStandard.CMS, "Test 2", "Ghent");
         app.sign(
-                SRC, String.format(DEST, 3), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
+                SRC, "Signature1", String.format(DEST, 3), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
                 MakeSignature.CryptoStandard.CADES, "Test 3", "Ghent");
         app.sign(
-                SRC, String.format(DEST, 4), chain, pk, DigestAlgorithms.RIPEMD160, provider.getName(),
-                MakeSignature.CryptoStandard.CADES, "Test 4", "Ghent");
+                SRC, "Signature1", String.format(DEST, 4), chain, pk, DigestAlgorithms.RIPEMD160,
+                provider.getName(), MakeSignature.CryptoStandard.CADES, "Test 4", "Ghent");
     }
 }
