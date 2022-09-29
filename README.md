@@ -35,3 +35,10 @@ Enter key password for <demo>
 Warning:
 The JKS keystore uses a proprietary format. It is recommended to migrate to PKCS12 which is an industry standard format using "keytool -importkeystore -srckeystore ks -destkeystore ks -deststoretype pkcs12".
 ```
+
+### Export certificate from key store
+
+```shell
+$ keytool -export -alias demo -file bruno.crt -keystore ks -storepass password
+Certificate stored in file <bruno.crt>
+```
