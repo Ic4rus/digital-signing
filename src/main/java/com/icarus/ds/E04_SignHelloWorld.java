@@ -29,7 +29,7 @@ public class E04_SignHelloWorld extends SignHelloWorld {
 //        PrivateKey pk = (PrivateKey) ks.getKey(alias, PASSWORD);
 //        Certificate[] chain = ks.getCertificateChain(alias);
         SignHelloWorld app = new E04_SignHelloWorld();
-        app.createPdf(SRC);
+        app.addSignatureField(SRC, DEST);
 //        app.sign(
 //                SRC, "Signature1", String.format(DEST, 1), chain, pk, DigestAlgorithms.SHA256, provider.getName(),
 //                MakeSignature.CryptoStandard.CMS, "Test 1", "Ghent");

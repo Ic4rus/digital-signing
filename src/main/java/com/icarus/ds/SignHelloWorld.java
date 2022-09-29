@@ -13,6 +13,8 @@ import java.security.cert.Certificate;
 
 public class SignHelloWorld {
 
+    private static final String SIGNAME = "sig";
+
     public void createPdf(String filename) throws IOException, DocumentException{
         // step 1: Create a Document
         Document document = new Document();
@@ -41,6 +43,21 @@ public class SignHelloWorld {
         field.setAppearance(PdfAnnotation.APPEARANCE_NORMAL, tp);
         // step 5: Close the Document
         document.close();
+    }
+
+    public void addSignatureField(String src, String dest) throws IOException, DocumentException {
+        PdfReader reader = new PdfReader(src);
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
+        // create a signature form field
+        PdfFormField field = PdfFormField.createSignature(stamper.getWriter());
+        field.setFieldName(SIGNAME);
+        // set the widget properties
+        field.setWidget(new Rectangle(72, 732, 144, 780), PdfAnnotation.HIGHLIGHT_OUTLINE);
+        field.setFlags(PdfAnnotation.FLAGS_PRINT);
+        // add the annotation
+        stamper.addAnnotation(field, 1);
+        // close stamper
+        stamper.close();
     }
 
     public void sign(
