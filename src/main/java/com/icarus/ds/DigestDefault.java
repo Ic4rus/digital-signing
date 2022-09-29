@@ -46,16 +46,4 @@ public class DigestDefault {
         }
     }
 
-    public static void main(String[] args) {
-        showTest("MD5");
-        showTest("SHA-1");
-        showTest("SHA-224");
-        showTest("SHA-256");
-        showTest("SHA-384");
-        showTest("SHA-512");
-        showTest("RIPEMD128");
-        showTest("RIPEMD160");
-        showTest("RIPEMD256");
-    }
-
 }
