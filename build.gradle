@@ -18,6 +18,10 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on
     implementation group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.50'
+
+    // https://mvnrepository.com/artifact/com.itextpdf/itextpdf
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.0'
+
 }
 
 test {
