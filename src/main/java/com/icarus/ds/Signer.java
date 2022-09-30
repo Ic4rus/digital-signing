@@ -1,8 +1,6 @@
 package com.icarus.ds;
 
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.security.*;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -15,62 +13,87 @@ import java.security.cert.Certificate;
 
 public class Signer {
 
-    public void sign(
-            String src, String name, String dest, Certificate[] chain, PrivateKey pk, String digestAlgorithm,
-            String provider, MakeSignature.CryptoStandard subfilter, String reason, String location)
-            throws GeneralSecurityException, IOException, DocumentException {
+    private String src = "src/main/resources/hello.pdf";
+    private String dest = "results/chapter2/hello_signed%s.pdf";
+    private String signame = "sig";
+    private BouncyCastleProvider provider;
+    private char[] password = "password".toCharArray();
+    private Certificate[] chain;
+    private PrivateKey pk;
+
+    public Signer() throws GeneralSecurityException, IOException {
+        this.provider = new BouncyCastleProvider();
+        Security.addProvider(provider);
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        ks.load(new FileInputStream("src/main/resources/ks"), password);
+        this.chain = ks.getCertificateChain("demo");
+        this.pk = (PrivateKey) ks.getKey("demo", password);
+    }
+
+    public PdfSignatureAppearance createAppearance(String dest, String reason, String location)
+            throws IOException, DocumentException {
         // Creating the reader and the stamper
-        PdfReader reader = new PdfReader(src);
+        PdfReader reader = new PdfReader(this.src);
         FileOutputStream os = new FileOutputStream(dest);
         PdfStamper stamper = PdfStamper.createSignature(reader, os, '\0');
         // Creating the appearance
         PdfSignatureAppearance appearance = stamper.getSignatureAppearance();
         appearance.setReason(reason);
         appearance.setLocation(location);
-        appearance.setVisibleSignature(name);
-        // Creating the appearance for lay 0
-        PdfTemplate n0 = appearance.getLayer(0);
-        float x = n0.getBoundingBox().getLeft();
-        float y = n0.getBoundingBox().getBottom();
-        float width = n0.getBoundingBox().getWidth();
-        float height = n0.getBoundingBox().getHeight();
-        n0.setColorFill(BaseColor.LIGHT_GRAY);
-        n0.rectangle(x, y, width, height);
-        n0.fill();
-        // Creating the appearance for layer 2
-        PdfTemplate n2 = appearance.getLayer(2);
-        ColumnText ct = new ColumnText(n2);
-        ct.setSimpleColumn(n2.getBoundingBox());
-        Paragraph p = new Paragraph("This document was signed by Bruno Specimen.");
-        ct.addElement(p);
-        ct.go();
-        // Creating the signature
-        ExternalSignature pks = new PrivateKeySignature(pk, digestAlgorithm, provider);
-        ExternalDigest digest = new BouncyCastleDigest();
-        MakeSignature.signDetached(
-                appearance, digest, pks, chain, null, null, null, 0, subfilter);
+        appearance.setVisibleSignature(this.signame);
+        return appearance;
     }
 
-    public static void main(String[] args)
+    public void sign1(String reason, String location)
             throws GeneralSecurityException, IOException, DocumentException {
-        String src = "src/main/resources/hello.pdf";
-        String name = "sig";
-        String dest = "results/chapter2/hello_signed.pdf";
-        String keystore = "src/main/resources/ks";
-        char[] pass = "password".toCharArray();
+        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 1), reason, location);
+        appearance.setLayer2Text("This document was singed by Bruno Specimen");
+        appearance.setLayer2Font(new Font(Font.FontFamily.TIMES_ROMAN));
+        sign(appearance);
+    }
 
-        BouncyCastleProvider provider = new BouncyCastleProvider();
-        Security.addProvider(provider);
+    public void sign2(String reason, String location)
+            throws GeneralSecurityException, IOException, DocumentException {
+        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 2), reason, location);
+        appearance.setLayer2Text("\u0644\u0648\u0631\u0627\u0646\u0633 \u0627\u0644\u0639\u0631\u0628");
+        appearance.setRunDirection(PdfWriter.RUN_DIRECTION_RTL);
+        appearance.setLayer2Font(new Font(
+                BaseFont.createFont(
+                        "src/main/resources/font/arialuni.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED)));
+        sign(appearance);
+    }
 
-        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        ks.load(new FileInputStream(keystore), pass);
-        Certificate[] chain = ks.getCertificateChain("demo");
-        PrivateKey pk = (PrivateKey) ks.getKey("demo", pass);
-        String reason = "Test";
-        String location = "Ghent";
+    public void sign3(String reason, String location)
+            throws GeneralSecurityException, IOException, DocumentException {
+        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 3), reason, location);
+        appearance.setImage(Image.getInstance("src/main/resources/image/wet-ink-signature.png"));
+        appearance.setImageScale(1);
+        sign(appearance);
+    }
+
+    public void sign4(String reason, String location)
+            throws GeneralSecurityException, IOException, DocumentException {
+        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 4), reason, location);
+        appearance.setImage(Image.getInstance("src/main/resources/image/wet-ink-signature.png"));
+        appearance.setImageScale(-1);
+        sign(appearance);
+    }
+
+    public void sign(PdfSignatureAppearance appearance)
+            throws DocumentException, GeneralSecurityException, IOException {
+        ExternalSignature pks = new PrivateKeySignature(this.pk, DigestAlgorithms.SHA256, this.provider.getName());
+        ExternalDigest digest = new BouncyCastleDigest();
+        MakeSignature.signDetached(
+                appearance, digest, pks, this.chain, null, null, null, 0,
+                MakeSignature.CryptoStandard.CMS);
+    }
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException, DocumentException {
         Signer signer = new Signer();
-        signer.sign(src, name, dest, chain, pk, DigestAlgorithms.SHA256,
-                provider.getName(), MakeSignature.CryptoStandard.CMS, reason, location);
+        signer.sign1("Test 1", "Ghent");
+        signer.sign2("Test 2", "Ghent");
+        signer.sign3("Test 3", "Ghent");
+        signer.sign4("Test 4", "Ghent");
     }
 
 }
