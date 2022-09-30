@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.*;
 import java.security.cert.Certificate;
+import java.util.Date;
 
 public class Signer {
 
@@ -30,8 +31,10 @@ public class Signer {
         this.pk = (PrivateKey) ks.getKey("demo", password);
     }
 
-    public PdfSignatureAppearance createAppearance(String dest, String reason, String location)
-            throws IOException, DocumentException {
+    public void sign(
+            int index, String reason, String location, PdfSignatureAppearance.RenderingMode renderingMode)
+            throws IOException, DocumentException, GeneralSecurityException {
+        String dest = String.format(this.dest, index);
         // Creating the reader and the stamper
         PdfReader reader = new PdfReader(this.src);
         FileOutputStream os = new FileOutputStream(dest);
@@ -41,46 +44,10 @@ public class Signer {
         appearance.setReason(reason);
         appearance.setLocation(location);
         appearance.setVisibleSignature(this.signame);
-        return appearance;
-    }
+        appearance.setLayer2Text("Signed on " + new Date().toString());
+        appearance.setRenderingMode(renderingMode);
+        appearance.setSignatureGraphic(Image.getInstance("src/main/resources/image/wet-ink-signature.png"));
 
-    public void sign1(String reason, String location)
-            throws GeneralSecurityException, IOException, DocumentException {
-        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 1), reason, location);
-        appearance.setLayer2Text("This document was singed by Bruno Specimen");
-        appearance.setLayer2Font(new Font(Font.FontFamily.TIMES_ROMAN));
-        sign(appearance);
-    }
-
-    public void sign2(String reason, String location)
-            throws GeneralSecurityException, IOException, DocumentException {
-        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 2), reason, location);
-        appearance.setLayer2Text("\u0644\u0648\u0631\u0627\u0646\u0633 \u0627\u0644\u0639\u0631\u0628");
-        appearance.setRunDirection(PdfWriter.RUN_DIRECTION_RTL);
-        appearance.setLayer2Font(new Font(
-                BaseFont.createFont(
-                        "src/main/resources/font/arialuni.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED)));
-        sign(appearance);
-    }
-
-    public void sign3(String reason, String location)
-            throws GeneralSecurityException, IOException, DocumentException {
-        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 3), reason, location);
-        appearance.setImage(Image.getInstance("src/main/resources/image/wet-ink-signature.png"));
-        appearance.setImageScale(1);
-        sign(appearance);
-    }
-
-    public void sign4(String reason, String location)
-            throws GeneralSecurityException, IOException, DocumentException {
-        PdfSignatureAppearance appearance = createAppearance(String.format(this.dest, 4), reason, location);
-        appearance.setImage(Image.getInstance("src/main/resources/image/wet-ink-signature.png"));
-        appearance.setImageScale(-1);
-        sign(appearance);
-    }
-
-    public void sign(PdfSignatureAppearance appearance)
-            throws DocumentException, GeneralSecurityException, IOException {
         ExternalSignature pks = new PrivateKeySignature(this.pk, DigestAlgorithms.SHA256, this.provider.getName());
         ExternalDigest digest = new BouncyCastleDigest();
         MakeSignature.signDetached(
@@ -90,10 +57,14 @@ public class Signer {
 
     public static void main(String[] args) throws GeneralSecurityException, IOException, DocumentException {
         Signer signer = new Signer();
-        signer.sign1("Test 1", "Ghent");
-        signer.sign2("Test 2", "Ghent");
-        signer.sign3("Test 3", "Ghent");
-        signer.sign4("Test 4", "Ghent");
+        signer.sign(
+                1, "Test 1", "Ghent", PdfSignatureAppearance.RenderingMode.DESCRIPTION);
+        signer.sign(
+                2, "Test 2", "Ghent", PdfSignatureAppearance.RenderingMode.NAME_AND_DESCRIPTION);
+        signer.sign(
+                3, "Test 3", "Ghent", PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION);
+        signer.sign(
+                4, "Test 4", "Ghent", PdfSignatureAppearance.RenderingMode.GRAPHIC);
     }
 
 }
