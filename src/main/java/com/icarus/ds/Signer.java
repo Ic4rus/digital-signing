@@ -53,16 +53,29 @@ public class Signer {
                 MakeSignature.CryptoStandard.CMS);
     }
 
+    public void addWrongAnnotation() throws IOException, DocumentException {
+        String src = "results/chapter2/hello_signed.pdf";
+        String dest = "results/chapter2/hello_signed_wrong_annotation.pdf";
+        PdfReader reader = new PdfReader(src);
+        PdfStamper stamper = new PdfStamper(reader, new FileOutputStream(dest));
+        PdfAnnotation comment = PdfAnnotation.createText(
+                stamper.getWriter(), new Rectangle(200, 800, 250, 820), "Finally Signed!",
+                "Bruno Specimen has finally signed the document", true, "Comment");
+        stamper.addAnnotation(comment, 1);
+        stamper.close();
+    }
+
     public static void main(String[] args) throws GeneralSecurityException, IOException, DocumentException {
         Signer signer = new Signer();
-        signer.sign(
-                1, "Test 1", "Ghent", PdfSignatureAppearance.NOT_CERTIFIED);
-        signer.sign(
-                2, "Test 2", "Ghent", PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
-        signer.sign(
-                3, "Test 3", "Ghent", PdfSignatureAppearance.CERTIFIED_FORM_FILLING);
-        signer.sign(
-                4, "Test 4", "Ghent", PdfSignatureAppearance.CERTIFIED_FORM_FILLING_AND_ANNOTATIONS);
+//        signer.sign(
+//                1, "Test 1", "Ghent", PdfSignatureAppearance.NOT_CERTIFIED);
+//        signer.sign(
+//                2, "Test 2", "Ghent", PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
+//        signer.sign(
+//                3, "Test 3", "Ghent", PdfSignatureAppearance.CERTIFIED_FORM_FILLING);
+//        signer.sign(
+//                4, "Test 4", "Ghent", PdfSignatureAppearance.CERTIFIED_FORM_FILLING_AND_ANNOTATIONS);
+        signer.addWrongAnnotation();
     }
 
 }
