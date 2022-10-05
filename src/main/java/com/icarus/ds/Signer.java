@@ -32,7 +32,7 @@ public class Signer {
     }
 
     public void sign(
-            int index, String reason, String location, PdfSignatureAppearance.RenderingMode renderingMode)
+            int index, String reason, String location, int certificationLevel)
             throws IOException, DocumentException, GeneralSecurityException {
         String dest = String.format(this.dest, index);
         // Creating the reader and the stamper
@@ -44,9 +44,7 @@ public class Signer {
         appearance.setReason(reason);
         appearance.setLocation(location);
         appearance.setVisibleSignature(this.signame);
-        appearance.setLayer2Text("Signed on " + new Date().toString());
-        appearance.setRenderingMode(renderingMode);
-        appearance.setSignatureGraphic(Image.getInstance("src/main/resources/image/wet-ink-signature.png"));
+        appearance.setCertificationLevel(certificationLevel);
 
         ExternalSignature pks = new PrivateKeySignature(this.pk, DigestAlgorithms.SHA256, this.provider.getName());
         ExternalDigest digest = new BouncyCastleDigest();
@@ -58,13 +56,13 @@ public class Signer {
     public static void main(String[] args) throws GeneralSecurityException, IOException, DocumentException {
         Signer signer = new Signer();
         signer.sign(
-                1, "Test 1", "Ghent", PdfSignatureAppearance.RenderingMode.DESCRIPTION);
+                1, "Test 1", "Ghent", PdfSignatureAppearance.NOT_CERTIFIED);
         signer.sign(
-                2, "Test 2", "Ghent", PdfSignatureAppearance.RenderingMode.NAME_AND_DESCRIPTION);
+                2, "Test 2", "Ghent", PdfSignatureAppearance.CERTIFIED_NO_CHANGES_ALLOWED);
         signer.sign(
-                3, "Test 3", "Ghent", PdfSignatureAppearance.RenderingMode.GRAPHIC_AND_DESCRIPTION);
+                3, "Test 3", "Ghent", PdfSignatureAppearance.CERTIFIED_FORM_FILLING);
         signer.sign(
-                4, "Test 4", "Ghent", PdfSignatureAppearance.RenderingMode.GRAPHIC);
+                4, "Test 4", "Ghent", PdfSignatureAppearance.CERTIFIED_FORM_FILLING_AND_ANNOTATIONS);
     }
 
 }
